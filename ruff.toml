@@ -1,0 +1,57 @@
+# ruff.toml - lint + format. Standalone so it won't clobber pyproject.toml.
+# If you already configure ruff in pyproject.toml, fold these settings in there.
+#
+# ADOPTING ON AN EXISTING CODEBASE: run a one-time baseline first, or the gate will
+# flood you with pre-existing violations (the same trap the misplaced ESLint hit):
+#     ruff check --fix .      # auto-fix what it can
+#     ruff format .           # format the tree once
+#     git add -A && git commit -m "chore: ruff baseline"
+# After that the gate just keeps it clean.
+
+# SET THIS to the project's Python version (your WSL system python is 3.14, but the
+# project may target something else). Affects pyupgrade (UP) rewrites.
+target-version = "py314"
+line-length = 100
+
+[lint]
+# Conservative DEFAULT set - low false-positive, high signal, safe to drop onto an
+# existing codebase:
+select = [
+  "E", "F", "W",   # pyflakes + pycodestyle core
+  "B",             # bugbear - common correctness traps
+  "T10",           # flake8-debugger - leftover breakpoint()/pdb.set_trace() (near-zero noise)
+]
+
+# OPT-IN stricter rules. Turn these on once the codebase is clean - on an existing
+# project they can surface a large backlog all at once. Add to `select` above:
+#   "I"     import sorting (isort)        - causes churn, easy to --fix
+#   "UP"    pyupgrade                     - modernizes syntax, can be large on old code
+#   "C90"   mccabe complexity (see below) - flags existing big functions
+#   "T20"   flake8-print                  - flags every print(); noisy in mgmt commands
+#   "SIM"   flake8-simplify
+#   "RUF"   ruff-specific rules
+# E501: ruff format owns line width (line-length above); what it can't wrap is
+# long strings/URLs where breaking hurts more than length. The formatter still
+# wraps all code.
+ignore = ["E501"]
+
+# Only takes effect if you enable "C90" above. Mirrors the Astro complexity cap.
+[lint.mccabe]
+max-complexity = 10
+
+[lint.per-file-ignores]
+# CLI bootstrap pattern: tools/tests set up sys.path / UTF-8 stdout before their
+# project imports, so module-level imports can't all be at the top.
+"tools/*.py" = ["E402"]
+"tests/*.py" = ["E402"]
+"wip/*.py" = ["E402"]
+# Guardrail tooling and generated/boilerplate code get a pass on the noisy rules
+# so the gate never trips on its own scripts or on Django scaffolding.
+"scripts/check-*.py" = ["T20", "T201", "C901", "E501"]
+"**/migrations/*" = ["E501", "T20", "T201"]
+"**/tests/**" = ["T20", "T201"]
+"**/test_*.py" = ["T20", "T201"]
+"manage.py" = ["T20", "T201"]
+
+[format]
+quote-style = "double"

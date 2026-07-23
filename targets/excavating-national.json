@@ -1,0 +1,58 @@
+{
+  "_comment": "FR-12 trade config for prospect_sweep.py (national excavating/site-work lead discovery). Unlike the local *-discovery.json configs, this has NO 'towns' list: the national tool drives location from the GeoNames seed (data/places_us_ca.csv) via the cell planner. 'trade_queries' is the per-cell Places searchText query set; the COUNT of phrases across all buckets is the main cost driver (each phrase = one search per cell), so trim phrases to cut spend. type_keywords/primary_types feed the Phase-2 relevance filter; chains/microsite_adjectives feed Phase-3 normalize.",
+  "area": "United States + Canada",
+  "slug": "excavating-national",
+  "vertical": "Excavating & site-work contractors",
+  "industry_schema": ["localbusiness", "generalcontractor"],
+  "_query_tuning": "Was 5 phrases per cell (Balanced, locked 2026-06-18, trimmed from 7 to cut ~30% cost). 2026-07-07: re-added 'land clearing service' to the excavation bucket (now 6 phrases, ~+20% on a future sweep's cost) to actively DISCOVER dedicated land-clearing / forestry-mulching operators; the relevance filter only caught them incidentally before (via the 'land clearing' type_keyword) when another query surfaced the firm. Still removed (re-add to widen): 'dump truck and hauling service' (most tangential to a website pitch). type_keywords below stay broad so the Phase-2 relevance filter still catches adjacent firms when a kept query surfaces them.",
+  "trade_queries": [
+    {
+      "bucket": "excavation",
+      "queries": [
+        "excavating contractor",
+        "grading and site work contractor",
+        "land clearing service"
+      ]
+    },
+    {
+      "bucket": "septic_underground",
+      "queries": [
+        "septic system service",
+        "sewer and water line contractor"
+      ]
+    },
+    {
+      "bucket": "demolition_hauling",
+      "queries": [
+        "demolition contractor"
+      ]
+    }
+  ],
+  "type_keywords": [
+    "excavat", "grading", "site work", "sitework", "earthwork", "dozer", "bulldozer",
+    "dirt work", "land clearing", "land grading", "septic", "sewer", "water line",
+    "utility contractor", "boring", "trenching", "demolition", "debris", "hauling",
+    "dump truck", "dumpster", "grading & drainage", "site prep"
+  ],
+  "_primary_types_comment": "primary_types = Google place types that ALONE confirm the trade (hard 'match'). DELIBERATELY EMPTY for excavation: Google has no excavating type, and 'general_contractor' (the obvious candidate) is a catch-all that plumbers, HVAC, concrete, foundation, pool-removal, tree and landscaping firms all carry - including it tagged ~51% of leads 'match' on zero trade signal. A bare general_contractor instead falls to 'maybe' via the 'contractor' adjacent keyword (review tier), while real excavators still hit 'match' on a type_keyword in their name. Add a type here only if it's truly trade-specific.",
+  "primary_types": [],
+  "adjacent_keywords": ["contractor", "construction", "concrete", "paving", "foundation", "landscaping"],
+  "_normalize_comment": "Phase-3 normalize_prospects.py: 'chains' = national/large-regional brands (case-insensitive name substrings) tagged tier=chain; everything else tier=local. National tool has no single service area, so in_footprint is replaced by per-state grouping (FR-13).",
+  "chains": [
+    "united rentals", "sunbelt", "herc rentals", "ferrovial", "granite construction",
+    "kiewit", "tutor perini", "sundt", "ames construction"
+  ],
+  "microsite_adjectives": [
+    "premier", "superior", "elite", "vanguard", "prime", "reliable", "trusted",
+    "advanced", "affordable", "quality", "expert", "pro"
+  ],
+  "_paid_comment": "Phase-6 (FR-17) paid shortlist config for measure_shortlist.py. 'costs' are per-call USD estimates used for BOTH the dry-run projection and the est_cost stored per lead - override to match your actual DataForSEO/Perplexity pricing. Templates build the per-lead SERP keyword and AI query from the lead's parsed city + state. Per lead = 1 SERP call + 1 backlinks call + (ai_runs) Perplexity calls. ALWAYS dry-run first; a live run requires DATAFORSEO_LOGIN/PASSWORD + PERPLEXITY_API_KEY in .env and a hard --budget cap (NFR-10).",
+  "paid": {
+    "trade_term": "excavating contractor",
+    "serp_keyword_template": "{trade} {city}",
+    "ai_query_template": "Who are the best {trade} companies in {city}, {state}?",
+    "perplexity_model": "sonar",
+    "ai_runs": 1,
+    "costs": {"serp": 0.003, "backlinks": 0.02, "perplexity": 0.005}
+  }
+}

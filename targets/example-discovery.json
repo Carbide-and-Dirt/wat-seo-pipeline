@@ -1,0 +1,24 @@
+{
+  "_comment": "Discovery config for places_discover.py. Enumerates every business matching 'query' across 'towns' (a local service area), so you can prospect a trade for website-upgrade/creation services. type_keywords filter results down to genuine firms of that trade; companies with no website are flagged as prime leads. Copy to targets/<your-area>-discovery.json and edit.",
+  "area": "Boulder County, CO — example service area (~30 min radius)",
+  "slug": "example-hvac",
+  "query": "HVAC heating and air conditioning contractor",
+  "vertical": "HVAC & climate contractors",
+  "industry_schema": ["localbusiness", "hvacbusiness"],
+  "type_keywords": ["hvac", "heating", "air condition", "air-condition", "cooling", "climate", "furnace", "heat pump", "a/c", "ac repair", "air repair", "mechanical"],
+  "primary_types": ["hvac_contractor", "air_conditioning_contractor"],
+  "towns": [
+    "Boulder, CO",
+    "Longmont, CO",
+    "Lafayette, CO",
+    "Louisville, CO",
+    "Erie, CO",
+    "Superior, CO",
+    "Niwot, CO",
+    "Lyons, CO"
+  ],
+  "_normalize_comment": "Used by normalize_prospects.py: 'chains' = national/large-regional brands (matched as case-insensitive substrings of the company name) tagged tier=chain; everything else tier=local. 'out_of_area_towns' = address towns clearly outside the footprint (informational in_footprint=false flag). 'microsite_adjectives' flag templated lead-gen microsites.",
+  "chains": ["One Hour", "Aire Serv", "ARS", "Lee's", "Horizon"],
+  "out_of_area_towns": ["Denver", "Fort Collins", "Colorado Springs"],
+  "microsite_adjectives": ["best", "top", "expert", "affordable", "local"]
+}

@@ -1,0 +1,23 @@
+# Secrets — never commit
+.env
+
+# Disposable intermediates (raw fetched HTML, audit/pagespeed/ai JSON)
+.tmp/
+
+# Generated reports (regenerate from tools; keep winners by hand if wanted)
+output/
+
+# Exported lead lists (emails/phones) — derived from the DB, regenerable, contains contact data
+exports/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Master store DB - large binary, changes every sweep/enrich. The valuable data lives
+# on disk + backups, not in git (rebuildable via the sweep).
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
+data/.cache/

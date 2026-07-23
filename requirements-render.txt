@@ -1,0 +1,3 @@
+# Only needed for `audit_site.py --render` (JS-injected schema on SPA sites).
+# After installing, download the browser binary once:  playwright install chromium
+playwright>=1.40

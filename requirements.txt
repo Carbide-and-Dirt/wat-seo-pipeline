@@ -1,0 +1,10 @@
+requests>=2.31
+beautifulsoup4>=4.12
+anthropic>=0.40   # tools/gbp_classify.py (follow-up-complaint classifier); only needed for live classify runs
+openpyxl>=3.1     # xlsx workbooks: leads_report.py, hvac_report.py, gbp_pitch_list.py
+
+# Optional: only for `audit_site.py --render` (JS-rendered DOM). Install with:
+#   pip install -r requirements-render.txt
+#   playwright install chromium
+# See requirements-render.txt — not installed by this file so the base setup
+# stays light (no Chromium download).

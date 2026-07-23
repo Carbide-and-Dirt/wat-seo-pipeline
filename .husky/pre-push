@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# pre-push (Python/Django) - full local gate before code leaves the machine.
+# Runs the fast checks PLUS mypy and the test suite (the slow ones the Stop hook
+# skips). Install: keep at .husky/pre-push (chmod +x), or copy to
+# .git/hooks/pre-push.
+set -euo pipefail
+
+RUFF=ruff;  [ -x ".venv/bin/ruff" ] && RUFF=".venv/bin/ruff"
+MYPY=mypy;  [ -x ".venv/bin/mypy" ] && MYPY=".venv/bin/mypy"
+
+echo "pre-push: ruff lint..."
+"$RUFF" check .
+
+echo "pre-push: ruff format..."
+"$RUFF" format --check .
+
+echo "pre-push: mypy..."
+if command -v "$MYPY" >/dev/null 2>&1; then
+  "$MYPY" .
+else
+  echo "  mypy not installed (pip install -r requirements-dev.txt) - skipping"
+fi
+
+if [ -f manage.py ]; then
+  echo "pre-push: migration drift..."
+  PY=python3; command -v python3 >/dev/null 2>&1 || PY=python
+  "$PY" manage.py makemigrations --check --dry-run
+fi
+
+echo "pre-push: secrets..."
+python3 scripts/check-secrets.py
+
+echo "pre-push: encoding..."
+python3 scripts/check-encoding.py
+
+echo "pre-push: tests..."
+bash scripts/run-tests.sh
+
+echo "pre-push: ok"

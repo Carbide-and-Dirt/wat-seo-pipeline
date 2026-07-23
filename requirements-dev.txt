@@ -1,0 +1,5 @@
+# Dev/CI tooling only — never installed in production use of the pipeline.
+# The quality gates (stop hook, pre-push, CI) run these.
+ruff==0.16.0   # pinned exactly: format output must match across clones and CI
+mypy==2.3.0
+pytest>=8.0

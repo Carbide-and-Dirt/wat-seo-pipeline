@@ -1,0 +1,5 @@
+Place seed data (data/places_us_ca.csv) is derived from GeoNames
+(cities500 + admin1CodesASCII dumps), (c) GeoNames, licensed under
+Creative Commons Attribution 4.0 (CC BY 4.0): https://www.geonames.org/
+Filtered to US + Canada populated places and reduced to
+name/state/country/lat/lng/population by tools/build_seed.py.

@@ -1,0 +1,58 @@
+name: quality-gate
+
+# The real lock: PRs to main must pass lint, format, types, secrets, encoding,
+# and tests. Pair with branch protection on main (notes at bottom) so this is
+# REQUIRED before merge.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Endpoints of the supported range (minimum verified with vermin).
+        python-version: ["3.10", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          if [ -f pyproject.toml ]; then pip install -e . || true; fi
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format
+        run: ruff format --check .
+
+      - name: mypy
+        run: mypy .
+
+      - name: Secrets
+        run: python3 scripts/check-secrets.py
+
+      - name: Encoding
+        run: python3 scripts/check-encoding.py
+
+      - name: Tests
+        run: bash scripts/run-tests.sh
+
+# --- ONE-TIME SETUP (per repo, the actual lock) ---
+# GitHub repo -> Settings -> Branches -> Add branch protection rule:
+#   Branch name pattern: main
+#   [x] Require a pull request before merging
+#   [x] Require status checks to pass before merging  -> select "gate"
+#   [x] Do not allow bypassing the above settings

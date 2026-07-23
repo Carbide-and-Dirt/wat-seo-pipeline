@@ -1,0 +1,61 @@
+{
+  "_comment": "One config drives the whole run: audit_site (pages), check_ai_visibility (brand/competitors/ai_queries), and score_report. Copy this to targets/<your-market>.json and edit. 'aliases' help match brand mentions/citations; 'domain' is used for citation matching and to link audit files to entities.",
+  "market": "Nashville, TN climbing gyms",
+  "slug": "nashville-climbing-gyms",
+  "city": "Nashville, TN",
+  "serp_location": "Nashville,Tennessee,United States",
+  "seo_keywords": [
+    "climbing gym nashville",
+    "bouldering nashville",
+    "rock climbing nashville",
+    "climbing gym franklin tn"
+  ],
+  "brand": {
+    "name": "The Climb Gyms",
+    "aliases": ["The Climb", "Climb Nashville"],
+    "domain": "theclimbgyms.com"
+  },
+  "competitors": [
+    {
+      "name": "The Crag",
+      "aliases": ["I Love Rock Climbing", "The Crag Nashville"],
+      "domain": "iloverockclimbing.com"
+    }
+  ],
+  "pages": {
+    "The Climb Gyms": [
+      "https://theclimbgyms.com/",
+      "https://theclimbgyms.com/nashville-west/",
+      "https://theclimbgyms.com/rates/"
+    ],
+    "The Crag": [
+      "https://iloverockclimbing.com/",
+      "https://iloverockclimbing.com/nashville/",
+      "https://iloverockclimbing.com/pricing/"
+    ]
+  },
+  "ai_queries": [
+    "Who are the best climbing gyms in Nashville, TN?",
+    "Where can I go bouldering in Nashville?",
+    "Best climbing gym near Franklin, TN?",
+    "I'm new to rock climbing in Nashville — which gym should I join?",
+    "Climbing gym with kids programs in the Nashville area?",
+    "Tell me about The Climb Gyms in Nashville."
+  ],
+  "grid": {
+    "_comment": "geo_grid.py geo-grid rank tracker (ADR-LP-001). rows x cols pins centered on the business, spacing_km apart; cost = rows*cols*keywords requests. 7x7 @ 1.6 km covers roughly a 10x10 km service area. Always --dry-run first.",
+    "rows": 7,
+    "cols": 7,
+    "spacing_km": 1.6,
+    "zoom": 14,
+    "depth": 20,
+    "keywords": [
+      "climbing gym nashville",
+      "bouldering nashville"
+    ]
+  },
+  "paid": {
+    "_comment": "maps_priority: only 'live' ($0.002/request) is wired; 'standard'/'priority' need an async task flow dataforseo.py doesn't have yet.",
+    "maps_priority": "live"
+  }
+}
