@@ -186,7 +186,7 @@ def _top_gap(no_website, gaps_json):
         return "no website - full build opportunity"
     try:
         gaps = json.loads(gaps_json) if gaps_json else []
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         gaps = []
     return gaps[0] if gaps else "solid site - few gaps"
 
@@ -194,14 +194,14 @@ def _top_gap(no_website, gaps_json):
 def _tags(tags_json):
     try:
         return ", ".join(json.loads(tags_json)) if tags_json else ""
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         return ""
 
 
 def _tag_set(tags_json):
     try:
         return set(json.loads(tags_json)) if tags_json else set()
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         return set()
 
 
@@ -300,7 +300,7 @@ def gbp_signal_label(signals_json, top=2):
     """The strongest neglect signals as a short label, e.g. 'unclaimed, few photos'."""
     try:
         fired = json.loads(signals_json) if signals_json else {}
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         fired = {}
     on = [_GBP_SIGNAL_LABELS.get(k, k) for k, v in fired.items() if v]
     # Keep the weight order (unclaimed first) by sorting on the label map's insertion order.

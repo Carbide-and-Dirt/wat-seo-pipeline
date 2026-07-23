@@ -40,7 +40,7 @@ def _json_list(blob):
     try:
         v = json.loads(blob) if blob else []
         return v if isinstance(v, list) else []
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         return []
 
 
