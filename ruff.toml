@@ -10,7 +10,7 @@
 
 # SET THIS to the project's Python version (your WSL system python is 3.14, but the
 # project may target something else). Affects pyupgrade (UP) rewrites.
-target-version = "py314"
+target-version = "py310"  # the MINIMUM supported version - ruff must not introduce newer syntax
 line-length = 100
 
 [lint]

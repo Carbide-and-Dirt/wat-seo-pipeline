@@ -93,7 +93,7 @@ def load_seed(path=DEFAULT_SEED):
                         population=int(r["population"]),
                     )
                 )
-            except ValueError, KeyError:
+            except (ValueError, KeyError):
                 continue  # skip malformed rows rather than abort the whole plan
     return places
 

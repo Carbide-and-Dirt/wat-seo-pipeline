@@ -69,7 +69,7 @@ def diff_audits(baseline: dict, current: dict) -> dict:
     def sig_set(row):
         try:
             return set(json.loads(row.get("signals_json") or "{}").keys())
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             return set()
 
     # neglect signals no longer firing; 'unclaimed' is excluded (SEC-D: claim status is an
