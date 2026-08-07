@@ -290,13 +290,21 @@ def parse_page(url, status, html):
         "jsonld_blocks": jsonld_blocks,
         "schema_types": sorted(schema_types),
         "schema_flags": {
+            # LocalBusiness = the schema.org LocalBusiness type OR a recognized subtype
+            # (GeneralContractor/HomeAndConstructionBusiness/ProfessionalService, plus a few
+            # legacy trade tells). Bare "Organization" is deliberately NOT here: it is the
+            # generic parent, carries none of the local NAP/geo/hours signal, and is already
+            # scored on its own "+1 Organization" rubric line — counting it as LocalBusiness
+            # double-credited generic sites and masked the real local-schema gap.
             "LocalBusiness": _has(
                 schema_types,
                 "LocalBusiness",
+                "GeneralContractor",
+                "HomeAndConstructionBusiness",
+                "ProfessionalService",
                 "Excavating",
                 "SportsActivityLocation",
                 "HealthClub",
-                "Organization",
             ),
             "FAQPage": "FAQPage" in schema_types,
             "Organization": "Organization" in schema_types,
