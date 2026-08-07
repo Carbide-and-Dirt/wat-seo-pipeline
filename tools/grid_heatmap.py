@@ -126,6 +126,12 @@ def _legend(x: int, y: int) -> str:
     return "\n".join(parts)
 
 
+def _approx_text_w(s: str, size: int, k: float = 0.58) -> int:
+    """Rough render width of a text run (no font metrics available). Slightly generous
+    so titles/legends never clip the canvas."""
+    return int(len(s) * size * k)
+
+
 def _svg(width: int, height: int, body: str) -> str:
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
@@ -149,8 +155,16 @@ def render_heatmap(
         raise ValueError("no cells to render")
     rows, cols = _dims(cells, rows, cols)
     grid_w, grid_h = cols * _CELL, rows * _CELL
-    width = grid_w + 2 * _PAD
+
+    # Canvas must fit the widest of: the grid, the 4-item legend, and the title —
+    # otherwise narrow grids (e.g. 7 cols) clip the legend's "Not found" entry and any
+    # long title runs off the right edge (both observed before this fix).
+    legend_step = 168
+    legend_block_w = 3 * legend_step + 16 + _approx_text_w(TIER_LABEL["absent"], 13)
+    title_w = _approx_text_w(title, 22, 0.60)
+    width = max(grid_w + 2 * _PAD, legend_block_w + 2 * _PAD, title_w + 2 * _PAD)
     height = _TITLE_H + grid_h + _LEGEND_H + 2 * _PAD
+    ox = (width - grid_w) // 2  # centre the grid in the (possibly wider) canvas
 
     title_el = (
         f'<text x="{_PAD}" y="{_PAD + 20}" fill="{STEEL_DARK}" font-family="{_FONT}" '
@@ -163,8 +177,10 @@ def render_heatmap(
         if subtitle
         else ""
     )
-    panel = _panel(_PAD, _TITLE_H + _PAD + 8, cells, rows, cols, "coverage", solv)
-    legend = _legend(_PAD + 6, _TITLE_H + _PAD + grid_h + 30)
+    # No panel kicker here: the title already reads "…Coverage", and a "COVERAGE" label on
+    # the grid-header line collided with the subtitle. SoLV still renders on that line.
+    panel = _panel(ox, _TITLE_H + _PAD + 8, cells, rows, cols, "", solv)
+    legend = _legend((width - legend_block_w) // 2, _TITLE_H + _PAD + grid_h + 30)
     return _svg(width, height, title_el + sub_el + panel + legend)
 
 
@@ -240,6 +256,13 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Render a Steel & Amber geo-grid heatmap SVG.")
     ap.add_argument("--place-id", required=True)
     ap.add_argument("--mode", choices=["current", "before-after"], default="before-after")
+    ap.add_argument(
+        "--scan-id",
+        type=int,
+        help="Render this exact grid_scans.id (current mode only). Use when one place_id has "
+        "several scans of different geometry — e.g. a tight home-turf grid and a wider metro "
+        "grid — so 'latest' selection can't distinguish them.",
+    )
     ap.add_argument("--keyword", help="Single keyword; omit for the aggregate grid")
     ap.add_argument("--title", default="Local Search Coverage")
     ap.add_argument("--out", type=Path, help="Write SVG here (default output/<place>-grid.svg)")
@@ -261,9 +284,14 @@ def main(argv=None):
     sub = f"Keyword: {args.keyword}" if args.keyword else "All keywords (aggregate)"
 
     if args.mode == "current":
-        cur_id = gdb.latest_scan_id(
-            conn, args.place_id, exclude_baseline=True
-        ) or gdb.latest_scan_id(conn, args.place_id)
+        if args.scan_id is not None:
+            cur_id = args.scan_id
+            if gdb.get_scan(conn, cur_id) is None:
+                raise SystemExit(f"No grid_scans row with id={cur_id}.")
+        else:
+            cur_id = gdb.latest_scan_id(
+                conn, args.place_id, exclude_baseline=True
+            ) or gdb.latest_scan_id(conn, args.place_id)
         if cur_id is None:
             raise SystemExit(f"No completed scan for {args.place_id}.")
         svg = render_heatmap(
